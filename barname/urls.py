@@ -10,4 +10,5 @@ urlpatterns = [
     path('make_signup/', views.make_signup),
     path('make_add_clinic/', views.add_clinic),
     path('panel/', views.panel),
-    
+    path('panel/new_appointment/', views.new_appointment),
+    path('panel/make_new_appointment/', views.make_new_appointment),

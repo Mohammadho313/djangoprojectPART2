@@ -1,3 +1,5 @@
+from django.shortcuts import render
+
 def check_login_or_main(request):
     if 'username' in request.session:
         return redirect('/panel/')
@@ -231,3 +233,53 @@ direction: rtl;
     </body>
     </html>"""
     return HttpResponse(html)
+def new_appointment(request):
+    if 'username' not in request.session:
+        return redirect('../login/')
+    user = TheUser.objects.get(username=request.session['username'])
+    if(user.role != "بیمار"):
+        return redirect('../panel/?msg=Access Denied')
+    
+    html = """<html>   
+<body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"/>
+<style>
+*{
+font-family: "Vazirmatn";
+direction: rtl;
+}
+</style>
+<h1>درخواست ویزیت جدید</h1>
+<form action="/panel/make_new_appointment/" method="post"/>
+<input placeholder="آیدی کلینیک id" name="clinic_id"/><br><br>
+<input type="text" placeholder="تاریخ میلادی(25-05-2025)" name="date"/><br><br>
+<input type="submit" value="ارسال"/>
+</form><br><br><a href="../../panel">بازگشت به پنل کاربری</a>
+</body>
+</html>"""
+    return HttpResponse(html)
+
+def make_new_appointment(request):
+    if 'username' not in request.session:
+        return redirect('../login/')
+    user = TheUser.objects.get(username=request.session['username'])
+    if(user.role != "بیمار"):
+        return redirect('../panel/?msg=Access Denied')
+    if request.method == 'POST':
+        clinic_id = request.POST['clinic_id']
+        date_string = request.POST['date']
+        
+        try:
+            clinic = TheClinic.objects.get(clinic_id=clinic_id)
+        except:
+            return redirect('../panel/?msg=آیدی کلینیک اشتباه است')
+        
+        try:
+            date = datetime.strptime(date_string, '%Y-%m-%d').date()
+        except:
+            return redirect('../panel/?msg=تاریخ اشتباه است')
+        
+        TheAppointment = TheAppointments(clinic_id=clinic_id, date=date, user_id=request.session['username'], status="در انتظار")
+        TheAppointment.save()
+        return redirect('../my_appointments/?msg=Success')
+    
