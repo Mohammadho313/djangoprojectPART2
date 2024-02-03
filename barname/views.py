@@ -426,6 +426,65 @@ direction: rtl;
     html += '</table><br><br><a href="../../panel">بازگشت به پنل کاربری</a>'
 
     return HttpResponse(html)
+def rejected_appointments(request):
+    if 'username' not in request.session:
+        return redirect('../../login/')
+    user = TheUser.objects.get(username=request.session['username'])
+    if (user.role != "منشی"):
+        return redirect('../panel/')
+    today = date.today()
+    msg = request.GET.get('msg', "no_msg")
+    msg2 = msg.replace(" ", "")
+    if (msg2 is None):
+        msg = "no_msg"
+    if (msg == "no_msg"):
+        html = ""
+    else:
+        html = "<p>پیام سیستم: " + str(msg) + "</p>"
+    TheAppointmentss = TheAppointments.objects.filter(clinic_id=user.clinic_id, status="رد شده", date__gte=today)
+    html += """<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"/>
+<style>
+*{
+font-family: "Vazirmatn";
+direction: rtl;
+}
+</style>
+"""
+    html += '<table><tr><th>تاریخ</th><th>شناسه کلینیک</th><th>شناسه کاربر</th><th>وضعیت درخواست</th><th>اقدامات</th></tr>'
+    for TheAppointment in TheAppointmentss:
+        html += f'<tr><td>{TheAppointment.date}</td><td>{TheAppointment.clinic_id}</td><td>{TheAppointment.user_id}</td><td>{TheAppointment.status}</td><td><a href="/panel/approve_appointment/?id={TheAppointment.id}">تایید درخواست</a></td></tr>'
+    html += '</table><br><br><a href="../../panel">بازگشت به پنل کاربری</a>'
 
+    return HttpResponse(html)
+def expired_appointments(request):
+    if 'username' not in request.session:
+        return redirect('../../login/')
+    user = TheUser.objects.get(username=request.session['username'])
+    if (user.role != "منشی"):
+        return redirect('../panel/')
+    today = date.today()
+    msg = request.GET.get('msg', "no_msg")
+    msg2 = msg.replace(" ", "")
+    if (msg2 is None):
+        msg = "no_msg"
+    if (msg == "no_msg"):
+        html = ""
+    else:
+        html = "<p>پیام سیستم: " + str(msg) + "</p>"
+    TheAppointmentss = TheAppointments.objects.filter(clinic_id=user.clinic_id, date__lt=today)
+    html += """<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"/>
+    <style>
+    *{
+    font-family: "Vazirmatn";
+    direction: rtl;
+    }
+    </style>
+    """
+    html += '<table><tr><th>تاریخ</th><th>شناسه کلینیک</th><th>شناسه کاربر</th><th>آخرین وضعیت درخواست</th></tr>'
+    for TheAppointment in TheAppointmentss:
+        html += f'<tr><td>{TheAppointment.date}</td><td>{TheAppointment.clinic_id}</td><td>{TheAppointment.user_id}</td><td>{TheAppointment.status}</td></tr>'
+    html += '</table><br><br><a href="../../panel">بازگشت به پنل کاربری</a>'
+
+    return HttpResponse(html)
 
 

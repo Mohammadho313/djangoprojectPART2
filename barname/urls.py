@@ -19,12 +19,6 @@ urlpatterns = [
     path('panel/pending_appointments/', views.pending_appointments),
     path('panel/approve_appointment/', views.approve_appointment),
     path('panel/confirmed_appointments/', views.confirmed_appointments),
-
-
-
-
-
-
-
-
+    path('panel/rejected_appointments/', views.rejected_appointments),
+    path('panel/expired_appointments/', views.expired_appointments),
 ]
